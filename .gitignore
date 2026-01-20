@@ -1,0 +1,27 @@
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===== Node / Frontend =====
+node_modules/
+dist/
+build/
+.vite/
+.vite_deps/
+*.log
+
+# ===== Python / Backend =====
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# ===== Env files =====
+.env
+.env.*
