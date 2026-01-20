@@ -90,6 +90,7 @@ Ele é dividido em 2 partes:
 - O arquivo enviado precisa ser .csv
 
 
+<img width="1234" height="708" alt="image" src="https://github.com/user-attachments/assets/985b0c3b-c1fa-4fbc-a8c1-3d6489959f6d" />
 
 
 
