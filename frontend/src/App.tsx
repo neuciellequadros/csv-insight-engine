@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import autoTable from "jspdf-autotable";
 import {
   LineChart,
@@ -11,6 +13,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { Footer } from "./components/footer";
 
 const API_BASE = "http://localhost:8000";
 
@@ -35,9 +38,9 @@ type AnalyzeResponse = {
   preview: Record<string, any>[];
 };
 
-function formatNum(n: number | null | undefined) {
+function formatNum(n: number | null | undefined, locale: string) {
   if (n === null || n === undefined || Number.isNaN(n)) return "-";
-  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 4 }).format(n);
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 4 }).format(n);
 }
 
 function Pill({
@@ -116,6 +119,14 @@ export default function App() {
   const [data, setData] = useState<AnalyzeResponse | null>(null);
   const [chartCol, setChartCol] = useState<string>("");
 
+  const { t, i18n } = useTranslation("common");
+  const localeForNumbers =
+    i18n.language === "en"
+      ? "en-US"
+      : i18n.language === "es"
+        ? "es-ES"
+        : "pt-BR";
+
   const [apiStatus, setApiStatus] = useState<"unknown" | "ok" | "down">(
     "unknown",
   );
@@ -149,7 +160,7 @@ export default function App() {
       setData(null);
 
       if (!file) {
-        setErr("Selecione um arquivo .csv antes de analisar.");
+        setErr(t("errorNoFile"));
         return;
       }
 
@@ -168,7 +179,7 @@ export default function App() {
       setData(res.data);
       setChartCol(res.data.numericColumns?.[0] ?? "");
     } catch (e: any) {
-      setErr(e?.response?.data?.detail || "Erro ao analisar CSV.");
+      setErr(e?.response?.data?.detail || t("errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -187,13 +198,17 @@ export default function App() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(20);
-    doc.text("InsightCSV — Relatório", marginX, 48);
+    doc.text(t("pdfTitle"), marginX, 48);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(90);
-    doc.text(`Arquivo: ${data.filename}`, marginX, 66);
-    doc.text(`Linhas: ${data.rows}   |   Colunas: ${data.cols}`, marginX, 82);
+    doc.text(`${t("fileLabel")}: ${data.filename}`, marginX, 66);
+    doc.text(
+      `${t("rowsLabel")}: ${data.rows}   |   ${t("colsLabel")}: ${data.cols}`,
+      marginX,
+      82,
+    );
 
     // Linha
     doc.setDrawColor(220);
@@ -206,10 +221,10 @@ export default function App() {
     const cardW = (pageWidth - marginX * 2 - gap * 3) / 4;
 
     const cards = [
-      { label: "Arquivo", value: data.filename },
-      { label: "Linhas", value: String(data.rows) },
-      { label: "Colunas", value: String(data.cols) },
-      { label: "Numéricas", value: String(data.numericColumns.length) },
+      { label: t("fileShort"), value: data.filename },
+      { label: t("rowsShort"), value: String(data.rows) },
+      { label: t("colsShort"), value: String(data.cols) },
+      { label: t("numericShort"), value: String(data.numericColumns.length) },
     ];
 
     cards.forEach((c, i) => {
@@ -237,28 +252,28 @@ export default function App() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(30);
-    doc.text("Estatísticas (colunas numéricas)", marginX, cursorY);
+    doc.text(t("statsTitlePdf"), marginX, cursorY);
     cursorY += 10;
 
     const statRows = Object.entries(data.stats || {}).map(([col, s]) => [
       col,
       String(s.count),
-      formatNum(s.min),
-      formatNum(s.max),
-      formatNum(s.mean),
-      formatNum(s.sum),
+      formatNum(s.min, localeForNumbers),
+      formatNum(s.max, localeForNumbers),
+      formatNum(s.mean, localeForNumbers),
+      formatNum(s.sum, localeForNumbers),
     ]);
 
     if (statRows.length === 0) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(90);
-      doc.text("Nenhuma coluna numérica detectada.", marginX, cursorY + 18);
+      doc.text(t("noNumericCols"), marginX, cursorY + 18);
       cursorY += 30;
     } else {
       autoTable(doc, {
         startY: cursorY + 8,
-        head: [["Coluna", "Count", "Min", "Max", "Média", "Soma"]],
+        head: [[t("col"), t("count"), t("min"), t("max"), t("mean"), t("sum")]],
         body: statRows,
         styles: {
           font: "helvetica",
@@ -287,7 +302,7 @@ export default function App() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(30);
-    doc.text("Preview (primeiras linhas)", marginX, cursorY);
+    doc.text(t("previewTitlePdf"), marginX, cursorY);
     cursorY += 10;
 
     const preview = data.preview || [];
@@ -307,7 +322,7 @@ export default function App() {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(90);
-      doc.text("Sem dados para preview.", marginX, cursorY + 18);
+      doc.text(t("noPreview"), marginX, cursorY + 18);
     } else {
       autoTable(doc, {
         startY: cursorY + 8,
@@ -339,14 +354,14 @@ export default function App() {
       doc.setFontSize(9);
       doc.setTextColor(120);
       doc.text(
-        `Página ${i} de ${pageCount}`,
+        `${t("page")} ${i} ${t("of")} ${pageCount}`,
         pageWidth - marginX,
         pageHeight - 24,
         { align: "right" },
       );
     }
 
-    doc.save("relatorio_insightcsv.pdf");
+    doc.save(`insightcsv-report-${i18n.language}.pdf`);
   }
 
   function clearAll() {
@@ -363,7 +378,8 @@ export default function App() {
         <div>
           <div style={styles.brandRow}>
             <div style={styles.logoDot} />
-            <div style={styles.brand}>InsightCSV AI</div>
+            <div style={styles.brand}>{t("appTitle")}</div>
+
             <Pill
               tone={
                 apiStatus === "ok"
@@ -376,34 +392,25 @@ export default function App() {
               <span style={{ fontWeight: 800 }}>API</span>
               <span style={{ opacity: 0.9 }}>
                 {apiStatus === "ok"
-                  ? "online"
+                  ? t("online")
                   : apiStatus === "down"
-                    ? "offline"
-                    : "status"}
+                    ? t("offline")
+                    : t("status")}
               </span>
             </Pill>
           </div>
-          <div style={styles.caption}>
-            Upload de CSV → análise → gráfico → PDF (somente dados)
-          </div>
+          <div style={styles.caption}>{t("caption")}</div>
         </div>
 
         <div style={styles.actionsRow}>
-          <button style={styles.ghostBtn} onClick={pingApi} disabled={loading}>
-            Testar API
-          </button>
+          <LanguageSwitcher />
         </div>
       </div>
 
       <div style={styles.hero}>
         <div style={styles.heroLeft}>
-          <div style={styles.heroTitle}>
-            Transforme um CSV em insights em segundos.
-          </div>
-          <div style={styles.heroText}>
-            Faça upload do arquivo, gere estatísticas, visualize o comportamento
-            em gráfico e exporte um relatório em PDF com dados.
-          </div>
+          <div style={styles.heroTitle}>{t("heroTitle")}</div>
+          <div style={styles.heroText}>{t("heroText")}</div>
 
           <div style={styles.uploadBox}>
             <div
@@ -423,20 +430,18 @@ export default function App() {
               <Pill>
                 {file ? (
                   <>
-                    <span style={{ fontWeight: 800 }}>Selecionado:</span>
+                    <span style={{ fontWeight: 800 }}>{t("selected")}:</span>
                     <span style={{ opacity: 0.9 }}>{file.name}</span>
                   </>
                 ) : (
-                  <span style={{ opacity: 0.9 }}>
-                    Nenhum arquivo selecionado
-                  </span>
+                  <span style={{ opacity: 0.9 }}>{t("noFileSelected")}</span>
                 )}
               </Pill>
             </div>
 
             {!!err && (
               <div style={styles.errorBox}>
-                <b>Erro:</b> {err}
+                <b>{t("error")}:</b> {err}
               </div>
             )}
           </div>
@@ -444,11 +449,20 @@ export default function App() {
 
         <div style={styles.heroRight}>
           <div style={styles.statsGrid}>
-            <StatCard label="Arquivo" value={hasData ? data!.filename : "—"} />
-            <StatCard label="Linhas" value={hasData ? data!.rows : "—"} />
-            <StatCard label="Colunas" value={hasData ? data!.cols : "—"} />
             <StatCard
-              label="Numéricas"
+              label={t("fileShort")}
+              value={hasData ? data!.filename : "—"}
+            />
+            <StatCard
+              label={t("rowsShort")}
+              value={hasData ? data!.rows : "—"}
+            />
+            <StatCard
+              label={t("colsShort")}
+              value={hasData ? data!.cols : "—"}
+            />
+            <StatCard
+              label={t("numericShort")}
               value={hasData ? data!.numericColumns.length : "—"}
             />
           </div>
@@ -457,11 +471,13 @@ export default function App() {
 
       <div style={styles.mainGrid}>
         <Panel
-          title="Gráfico"
+          title={t("chartTitle")}
           right={
             hasData && data!.numericColumns.length ? (
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 12, opacity: 0.8 }}>Coluna Y</span>
+                <span style={{ fontSize: 12, opacity: 0.8 }}>
+                  {t("yColumn")}
+                </span>
                 <select
                   value={chartCol}
                   onChange={(e) => setChartCol(e.target.value)}
@@ -478,13 +494,9 @@ export default function App() {
           }
         >
           {!hasData ? (
-            <div style={styles.empty}>
-              Envie um CSV e clique em <b>Analisar CSV</b>.
-            </div>
+            <div style={styles.empty}>{t("emptyChart")}</div>
           ) : data!.numericColumns.length === 0 ? (
-            <div style={styles.empty}>
-              Não detectei colunas numéricas para plotar.
-            </div>
+            <div style={styles.empty}>{t("noNumericToPlot")}</div>
           ) : (
             <div style={{ height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -500,22 +512,20 @@ export default function App() {
           )}
         </Panel>
 
-        <Panel title="Estatísticas (colunas numéricas)">
+        <Panel title={t("statsTitle")}>
           {!hasData ? (
-            <div style={styles.empty}>
-              As estatísticas aparecem após a análise.
-            </div>
+            <div style={styles.empty}>{t("statsEmpty")}</div>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th>Coluna</th>
-                    <th>Count</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Média</th>
-                    <th>Soma</th>
+                    <th>{t("col")}</th>
+                    <th>{t("count")}</th>
+                    <th>{t("min")}</th>
+                    <th>{t("max")}</th>
+                    <th>{t("mean")}</th>
+                    <th>{t("sum")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -525,7 +535,7 @@ export default function App() {
                         colSpan={6}
                         style={{ textAlign: "center", opacity: 0.85 }}
                       >
-                        Nenhuma coluna numérica detectada.
+                        {t("noNumericCols")}
                       </td>
                     </tr>
                   ) : (
@@ -533,10 +543,10 @@ export default function App() {
                       <tr key={k}>
                         <td style={{ fontWeight: 800 }}>{k}</td>
                         <td>{s.count}</td>
-                        <td>{formatNum(s.min)}</td>
-                        <td>{formatNum(s.max)}</td>
-                        <td>{formatNum(s.mean)}</td>
-                        <td>{formatNum(s.sum)}</td>
+                        <td>{formatNum(s.min, localeForNumbers)}</td>
+                        <td>{formatNum(s.max, localeForNumbers)}</td>
+                        <td>{formatNum(s.mean, localeForNumbers)}</td>
+                        <td>{formatNum(s.sum, localeForNumbers)}</td>
                       </tr>
                     ))
                   )}
@@ -554,7 +564,7 @@ export default function App() {
           onClick={handleAnalyze}
           disabled={loading}
         >
-          {loading ? "Analisando..." : "Analisar CSV"}
+          {loading ? t("analyzing") : t("analyze")}
         </button>
 
         <button
@@ -562,18 +572,14 @@ export default function App() {
           onClick={exportPdfOnlyData}
           disabled={!hasData}
         >
-          Gerar PDF (bonito)
+          {t("exportPdf")}
         </button>
 
         <button style={styles.ghostBtn} onClick={clearAll}>
-          Limpar
+          {t("clear")}
         </button>
       </div>
-
-      <div style={styles.footerNote}>
-        Dica: se seu CSV usa <b>;</b> como separador, o backend detecta
-        automaticamente.
-      </div>
+      <Footer />
     </div>
   );
 }

@@ -1,0 +1,32 @@
+{
+  "appTitle": "InsightCSV AI",
+  "caption": "CSV upload → analysis → chart → PDF (data only)",
+  "heroTitle": "Turn a CSV into insights in seconds.",
+  "heroText": "Upload your file, generate statistics, visualize patterns in a chart, and export a clean PDF report.",
+
+  "noFileSelected": "No file selected",
+
+  "fileShort": "File",
+  "rowsShort": "Rows",
+  "colsShort": "Columns",
+  "numericShort": "Numeric",
+
+  "emptyChart": "Upload a CSV and click Analyze CSV.",
+  "statsEmpty": "Statistics will appear after analysis.",
+
+  "testApi": "Test API",
+
+  "online": "online",
+  "offline": "offline",
+  "status": "status",
+
+  "chartTitle": "Chart",
+  "statsTitle": "Statistics",
+  "selected": "Selected",
+  "error": "Error",
+
+  "analyzing": "Analyzing...",
+  "analyze": "Analyze CSV",
+  "exportPdf": "Generate PDF",
+  "clear": "Clear"
+}
