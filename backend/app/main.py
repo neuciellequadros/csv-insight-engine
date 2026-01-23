@@ -5,6 +5,18 @@ from app.routes.analyze import router as analyze_router
 
 app = FastAPI()
 
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
+class VersionHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Build"] = "cors-test-001"
+        return response
+
+app.add_middleware(VersionHeaderMiddleware)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,3 +34,8 @@ app.include_router(analyze_router, prefix="/api")
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/")
+def root():
+    return {"ok": True, "build": "cors-test-001"}
+
