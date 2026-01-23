@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.routes.analyze import router as analyze_router
 
 app = FastAPI()
-
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
 
 class VersionHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -15,7 +13,6 @@ class VersionHeaderMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(VersionHeaderMiddleware)
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +25,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# /api + /analyze  =>  /api/analyze
 app.include_router(analyze_router, prefix="/api")
 
 @app.get("/health")
@@ -38,4 +34,3 @@ def health():
 @app.get("/")
 def root():
     return {"ok": True, "build": "cors-test-001"}
-
