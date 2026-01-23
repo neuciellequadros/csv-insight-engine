@@ -1,5 +1,7 @@
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
+
+  /* ✅ DEFAULT (fallback) = DARK */
   --bg: #0b0f19;
   --panel: rgba(255, 255, 255, 0.06);
   --panel2: rgba(255, 255, 255, 0.08);
@@ -7,30 +9,57 @@
   --text: rgba(255, 255, 255, 0.92);
   --muted: rgba(255, 255, 255, 0.65);
   --danger: #ff4d4f;
+
+  --bg-grad-1: rgba(99, 102, 241, 0.22);
+  --bg-grad-2: rgba(16, 185, 129, 0.16);
+  --bg-grad-3: rgba(236, 72, 153, 0.14);
+}
+
+/* DARK */
+html.dark {
+  --bg: #0b0f19;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.08);
+  --stroke: rgba(255, 255, 255, 0.14);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.65);
+  --danger: #ff4d4f;
+
+  --bg-grad-1: rgba(99, 102, 241, 0.22);
+  --bg-grad-2: rgba(16, 185, 129, 0.16);
+  --bg-grad-3: rgba(236, 72, 153, 0.14);
+}
+
+/* LIGHT */
+html.light {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel2: #f1f5f9;
+  --stroke: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+  --danger: #dc2626;
+
+  --bg-grad-1: rgba(99, 102, 241, 0.12);
+  --bg-grad-2: rgba(16, 185, 129, 0.1);
+  --bg-grad-3: rgba(236, 72, 153, 0.08);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background:
-    radial-gradient(
-      900px 500px at 15% 10%,
-      rgba(99, 102, 241, 0.22),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 500px at 85% 20%,
-      rgba(16, 185, 129, 0.16),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 500px at 50% 95%,
-      rgba(236, 72, 153, 0.14),
-      transparent 60%
-    ),
+    radial-gradient(900px 500px at 15% 10%, var(--bg-grad-1), transparent 60%),
+    radial-gradient(900px 500px at 85% 20%, var(--bg-grad-2), transparent 60%),
+    radial-gradient(900px 500px at 50% 95%, var(--bg-grad-3), transparent 60%),
     var(--bg);
   color: var(--text);
   font-family:

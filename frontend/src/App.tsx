@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Footer } from "./components/footer";
+import ThemeToggle from "./components/ThemeToggle";
 
 const API_BASE = "http://localhost:8000";
 
@@ -55,13 +56,21 @@ function Pill({
       ? "rgba(16,185,129,0.18)"
       : tone === "warn"
         ? "rgba(255,77,79,0.18)"
-        : "rgba(255,255,255,0.10)";
+        : "var(--panel2)";
+
   const bd =
     tone === "ok"
       ? "rgba(16,185,129,0.30)"
       : tone === "warn"
         ? "rgba(255,77,79,0.30)"
-        : "rgba(255,255,255,0.16)";
+        : "var(--stroke)";
+
+  const tx =
+    tone === "warn"
+      ? "var(--text)"
+      : tone === "ok"
+        ? "var(--text)"
+        : "var(--text)";
 
   return (
     <span
@@ -74,7 +83,7 @@ function Pill({
         background: bg,
         border: `1px solid ${bd}`,
         fontSize: 12,
-        color: "rgba(255,255,255,0.85)",
+        color: tx,
         whiteSpace: "nowrap",
       }}
     >
@@ -404,6 +413,7 @@ export default function App() {
 
         <div style={styles.actionsRow}>
           <LanguageSwitcher />
+          <ThemeToggle />
         </div>
       </div>
 
@@ -475,7 +485,7 @@ export default function App() {
           right={
             hasData && data!.numericColumns.length ? (
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 12, opacity: 0.8 }}>
+                <span style={{ fontSize: 12, color: "var(--muted)" }}>
                   {t("yColumn")}
                 </span>
                 <select
@@ -501,11 +511,16 @@ export default function App() {
             <div style={{ height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="idx" />
-                  <YAxis />
+                  <CartesianGrid stroke="var(--stroke)" strokeDasharray="3 3" />
+                  <XAxis dataKey="idx" stroke="var(--muted)" />
+                  <YAxis stroke="var(--muted)" />
                   <Tooltip />
-                  <Line type="monotone" dataKey="value" dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    dot={false}
+                    stroke="var(--text)"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -520,33 +535,38 @@ export default function App() {
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th>{t("col")}</th>
-                    <th>{t("count")}</th>
-                    <th>{t("min")}</th>
-                    <th>{t("max")}</th>
-                    <th>{t("mean")}</th>
-                    <th>{t("sum")}</th>
+                    <th style={styles.th}>{t("col")}</th>
+                    <th style={styles.th}>{t("count")}</th>
+                    <th style={styles.th}>{t("min")}</th>
+                    <th style={styles.th}>{t("max")}</th>
+                    <th style={styles.th}>{t("mean")}</th>
+                    <th style={styles.th}>{t("sum")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Object.keys(data!.stats).length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={6}
-                        style={{ textAlign: "center", opacity: 0.85 }}
-                      >
+                      <td colSpan={6} style={styles.tdEmpty}>
                         {t("noNumericCols")}
                       </td>
                     </tr>
                   ) : (
                     Object.entries(data!.stats).map(([k, s]) => (
                       <tr key={k}>
-                        <td style={{ fontWeight: 800 }}>{k}</td>
-                        <td>{s.count}</td>
-                        <td>{formatNum(s.min, localeForNumbers)}</td>
-                        <td>{formatNum(s.max, localeForNumbers)}</td>
-                        <td>{formatNum(s.mean, localeForNumbers)}</td>
-                        <td>{formatNum(s.sum, localeForNumbers)}</td>
+                        <td style={{ ...styles.td, fontWeight: 800 }}>{k}</td>
+                        <td style={styles.td}>{s.count}</td>
+                        <td style={styles.td}>
+                          {formatNum(s.min, localeForNumbers)}
+                        </td>
+                        <td style={styles.td}>
+                          {formatNum(s.max, localeForNumbers)}
+                        </td>
+                        <td style={styles.td}>
+                          {formatNum(s.mean, localeForNumbers)}
+                        </td>
+                        <td style={styles.td}>
+                          {formatNum(s.sum, localeForNumbers)}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -579,6 +599,7 @@ export default function App() {
           {t("clear")}
         </button>
       </div>
+
       <Footer />
     </div>
   );
@@ -616,11 +637,12 @@ const styles: Record<string, any> = {
     fontSize: 18,
     fontWeight: 900,
     letterSpacing: 0.2,
+    color: "var(--text)",
   },
   caption: {
     marginTop: 6,
     fontSize: 13,
-    color: "rgba(255,255,255,0.72)",
+    color: "var(--muted)",
   },
 
   actionsRow: {
@@ -637,8 +659,8 @@ const styles: Record<string, any> = {
   },
 
   heroLeft: {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.14)",
+    background: "var(--panel)",
+    border: "1px solid var(--stroke)",
     borderRadius: 18,
     padding: 18,
     backdropFilter: "blur(10px)",
@@ -649,12 +671,13 @@ const styles: Record<string, any> = {
     fontWeight: 950,
     lineHeight: 1.15,
     letterSpacing: -0.2,
+    color: "var(--text)",
   },
 
   heroText: {
     marginTop: 8,
     fontSize: 13,
-    color: "rgba(255,255,255,0.72)",
+    color: "var(--muted)",
     lineHeight: 1.5,
     maxWidth: 560,
   },
@@ -663,16 +686,16 @@ const styles: Record<string, any> = {
     marginTop: 14,
     padding: 14,
     borderRadius: 16,
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: "var(--panel2)",
+    border: "1px solid var(--stroke)",
   },
 
   fileInput: {
     padding: 10,
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(0,0,0,0.18)",
-    color: "rgba(255,255,255,0.9)",
+    border: "1px solid var(--stroke)",
+    background: "rgba(0,0,0,0.10)",
+    color: "var(--text)",
   },
 
   errorBox: {
@@ -681,13 +704,13 @@ const styles: Record<string, any> = {
     borderRadius: 12,
     background: "rgba(255,77,79,0.16)",
     border: "1px solid rgba(255,77,79,0.28)",
-    color: "rgba(255,255,255,0.92)",
+    color: "var(--text)",
     fontSize: 13,
   },
 
   heroRight: {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.14)",
+    background: "var(--panel)",
+    border: "1px solid var(--stroke)",
     borderRadius: 18,
     padding: 18,
     backdropFilter: "blur(10px)",
@@ -702,20 +725,20 @@ const styles: Record<string, any> = {
   statCard: {
     padding: 12,
     borderRadius: 16,
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: "var(--panel2)",
+    border: "1px solid var(--stroke)",
   },
 
   statLabel: {
     fontSize: 11,
-    color: "rgba(255,255,255,0.65)",
+    color: "var(--muted)",
   },
 
   statValue: {
     marginTop: 6,
     fontSize: 14,
     fontWeight: 900,
-    color: "rgba(255,255,255,0.92)",
+    color: "var(--text)",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -729,8 +752,8 @@ const styles: Record<string, any> = {
   },
 
   panel: {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.14)",
+    background: "var(--panel)",
+    border: "1px solid var(--stroke)",
     borderRadius: 18,
     padding: 14,
     backdropFilter: "blur(10px)",
@@ -749,14 +772,15 @@ const styles: Record<string, any> = {
     fontSize: 14,
     fontWeight: 950,
     letterSpacing: 0.2,
+    color: "var(--text)",
   },
 
   empty: {
     padding: 14,
     borderRadius: 14,
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.10)",
-    color: "rgba(255,255,255,0.72)",
+    background: "var(--panel2)",
+    border: "1px solid var(--stroke)",
+    color: "var(--muted)",
     fontSize: 13,
     lineHeight: 1.4,
   },
@@ -764,9 +788,9 @@ const styles: Record<string, any> = {
   select: {
     padding: "8px 10px",
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(0,0,0,0.22)",
-    color: "rgba(255,255,255,0.9)",
+    border: "1px solid var(--stroke)",
+    background: "rgba(0,0,0,0.12)",
+    color: "var(--text)",
     outline: "none",
   },
 
@@ -775,6 +799,29 @@ const styles: Record<string, any> = {
     borderCollapse: "collapse",
     fontSize: 12,
     overflow: "hidden",
+  },
+
+  th: {
+    textAlign: "left",
+    padding: "10px 10px",
+    borderBottom: "1px solid var(--stroke)",
+    color: "var(--muted)",
+    fontSize: 11,
+    letterSpacing: 0.2,
+    fontWeight: 900,
+  },
+
+  td: {
+    padding: "10px 10px",
+    borderBottom: "1px solid var(--stroke)",
+    color: "var(--text)",
+  },
+
+  tdEmpty: {
+    textAlign: "center",
+    opacity: 0.9,
+    padding: 12,
+    color: "var(--muted)",
   },
 
   footerButtons: {
@@ -788,7 +835,7 @@ const styles: Record<string, any> = {
   primaryBtn: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.18)",
+    border: "1px solid var(--stroke)",
     cursor: "pointer",
     background: "rgba(99,102,241,0.95)",
     color: "rgba(255,255,255,0.95)",
@@ -798,27 +845,20 @@ const styles: Record<string, any> = {
   secondaryBtn: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.18)",
+    border: "1px solid var(--stroke)",
     cursor: "pointer",
-    background: "rgba(255,255,255,0.10)",
-    color: "rgba(255,255,255,0.92)",
+    background: "var(--panel2)",
+    color: "var(--text)",
     fontWeight: 900,
   },
 
   ghostBtn: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.18)",
+    border: "1px solid var(--stroke)",
     cursor: "pointer",
-    background: "rgba(0,0,0,0.18)",
-    color: "rgba(255,255,255,0.9)",
+    background: "rgba(0,0,0,0.10)",
+    color: "var(--text)",
     fontWeight: 800,
-  },
-
-  footerNote: {
-    marginTop: 10,
-    fontSize: 12,
-    color: "rgba(255,255,255,0.62)",
-    padding: "0 2px",
   },
 };
