@@ -514,7 +514,33 @@ export default function App() {
                   <CartesianGrid stroke="var(--stroke)" strokeDasharray="3 3" />
                   <XAxis dataKey="idx" stroke="var(--muted)" />
                   <YAxis stroke="var(--muted)" />
-                  <Tooltip />
+                  <Tooltip
+                    cursor={{ strokeDasharray: "3 3" }}
+                    formatter={(value: any) => [
+                      formatNum(Number(value), localeForNumbers),
+                      chartCol || "value",
+                    ]}
+                    labelFormatter={(label) => `Linha ${label}`}
+                    contentStyle={{
+                      backgroundColor: "rgba(17, 24, 39, 0.95)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 12,
+                      color: "#fff",
+                      padding: "10px 12px",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+                    }}
+                    labelStyle={{
+                      color: "rgba(255,255,255,0.8)",
+                      fontWeight: 700,
+                    }}
+                    itemStyle={{ color: "#fff", fontWeight: 600 }}
+                    wrapperStyle={{
+                      outline: "none",
+                      zIndex: 9999,
+                      pointerEvents: "none",
+                    }}
+                  />
+
                   <Line
                     type="monotone"
                     dataKey="value"
