@@ -73,3 +73,8 @@ body {
 a {
   color: inherit;
 }
+
+html.light .footer,
+html.light .footer * {
+  color: #0f172a;
+}
