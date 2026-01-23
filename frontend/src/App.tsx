@@ -16,7 +16,7 @@ import {
 import { Footer } from "./components/footer";
 import ThemeToggle from "./components/ThemeToggle";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://csvtool.onrender.com";
 
 type ColumnInfo = { name: string; dtype: string };
 
