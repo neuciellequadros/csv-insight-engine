@@ -522,18 +522,20 @@ export default function App() {
                     ]}
                     labelFormatter={(label) => `Linha ${label}`}
                     contentStyle={{
-                      backgroundColor: "rgba(17, 24, 39, 0.95)",
-                      border: "1px solid rgba(255,255,255,0.12)",
+                      backgroundColor: "rgba(255, 255, 255, 0.95)", // fundo claro
+                      border: "1px solid rgba(0,0,0,0.12)",
                       borderRadius: 12,
-                      color: "#fff",
+                      color: "#000", // 👈 TEXTO PRETO
                       padding: "10px 12px",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
                     }}
                     labelStyle={{
-                      color: "rgba(255,255,255,0.8)",
+                      color: "#000", // 👈 TEXTO PRETO
                       fontWeight: 700,
                     }}
-                    itemStyle={{ color: "#fff", fontWeight: 600 }}
+                    itemStyle={{
+                      color: "#000", // 👈 TEXTO PRETO
+                      fontWeight: 600,
+                    }}
                     wrapperStyle={{
                       outline: "none",
                       zIndex: 9999,
